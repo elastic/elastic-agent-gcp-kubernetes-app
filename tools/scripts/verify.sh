@@ -4,7 +4,7 @@ set -eou pipefail
 [ -n "${DEBUG:-}" ] && set -x
 
 # shellcheck source=./_lib.sh
-. ./tools/scripts/_lib.sh
+. "$(dirname "${BASH_SOURCE[0]}")/_lib.sh"
 
 # Allow overriding GCR location
 GCP_GCR="${GCP_GCR:-gcr.io}"
