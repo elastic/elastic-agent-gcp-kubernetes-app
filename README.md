@@ -1,12 +1,5 @@
-# GCP Kubernetes Application
+# Elastic Agent GCP Kubernetes Application
 
-# Prerequisites
+[GCP Kubernetes Application](https://cloud.google.com/kubernetes-applications) are pre-packages application that can be run in a Kubernetes cluster. GCP console allows installing them via a simplified procedure (GUI or CLI based) and they can potentially be sold in the GCP Marketplace. However, our listing of Elastic Agent as a Kubernetes App would be free.
 
-1. Install [gcloud]
-2. Follow [GCP tool prerequisites]; you will also need to create the Application CRD (instruction at the link).
-3. Configure [GCP Docker auth helper]
-4. To run verification a working and reachable GKE cluster is needed.
-
-[gcloud]: https://cloud.google.com/sdk/docs/install
-[GCP tool prerequisites]: https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools/blob/master/docs/tool-prerequisites.md
-[GCP Docker auth helper]: https://cloud.google.com/container-registry/docs/advanced-authentication
+Is possible to install this application in [non-GKE clusters too](https://cloud.google.com/marketplace/docs/kubernetes-apps/deploying-non-gke-clusters).
