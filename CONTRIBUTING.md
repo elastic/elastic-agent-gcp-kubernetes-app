@@ -48,7 +48,7 @@ To port a new version:
 3. There are some changes needed:
   1. in `Dockerfile` change `FROM` to the expected version
   2. in `schema.yaml` change `x-google-marketplace.publishedVersion` to the new version
-  3. in `schema.yaml` update `x-google-marketplace.publishedVersionMetadata`
+  3. in `schema.yaml` update `x-google-marketplace.publishedVersionMetadata`; link to the Elastic Agent release notes and select the appropriate `ReleaseTypes` (1 or more from: `Feature`, `BugFix`, `Security`; use `Security` only for critical security patches)
 4. Prepare environment:
    - set `GCP_PROJECT_ID` to the project id where the image should be pushed
    - set `CLOUDSDK_CONTAINER_CLUSTER`, `CLOUDSDK_COMPUTE_ZONE` and `CLOUDSDK_CORE_PROJECT`
