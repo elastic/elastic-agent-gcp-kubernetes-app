@@ -6,7 +6,7 @@ x-google-marketplace:
   publishedVersion: '8.1.0'
   publishedVersionMetadata:
     releaseNote: >-
-      Elastic agent 8.1.0
+      See Elastic Agent Release notes at https://www.elastic.co/guide/en/fleet/8.1/release-notes-8.1.0.html
     releaseTypes:
       - Feature
     recommended: false
