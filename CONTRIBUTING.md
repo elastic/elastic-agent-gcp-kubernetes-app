@@ -61,5 +61,4 @@ To port a new version:
 
 # Checking if all expected versions are present
 
-1. Ensure `ELASTIC_AGENT_VERSION` is **not set**
-2. Run `./tools/scripts/check.sh`
+1. Run `./tools/scripts/check-all.sh`
