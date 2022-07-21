@@ -45,6 +45,7 @@ To port a new version:
 1. Create a folder named with the Elastic Stack version (i.e. `8.1.1`)
    Use the full version.
 2. Copy over the files from the latest folder in the same major version and **remove** any `build-id.*` files from it.
+**Make sure the files are up to date with the upstream manifests available in the [Elastic Agent Repository](https://github.com/elastic/elastic-agent/tree/main/deploy/kubernetes)**. Note that we are using the managed manifests.
 3. There are some changes needed:
   1. in `Dockerfile` change `FROM` to the expected version
   2. in `schema.yaml` change `x-google-marketplace.publishedVersion` to the new version
