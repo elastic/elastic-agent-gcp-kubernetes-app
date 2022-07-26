@@ -1,0 +1,177 @@
+x-google-marketplace:
+  schemaVersion: v2
+
+  applicationApiVersion: v1beta1
+
+  publishedVersion: '8.3.2'
+  publishedVersionMetadata:
+    releaseNote: >-
+      See Elastic Agent Release notes at https://www.elastic.co/guide/en/fleet/current/release-notes-8.3.2.html
+    releaseTypes:
+      - BugFix
+    recommended: true
+
+  images:
+    '':
+      properties:
+        image:
+          type: FULL
+        imageTag:
+          type: TAG
+
+  # Need for cluster-scoped permissions for the deployer. 
+  # See https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools/blob/master/docs/schema.md#deployerserviceaccount
+  deployerServiceAccount:
+    description: >
+      List clusterrolebindings, clusterroles ...
+    roles:
+    - type: ClusterRole
+      rulesType: CUSTOM
+      rules:
+      - apiGroups: ['rbac.authorization.k8s.io']
+        resources: ['clusterrolebindings', 'clusterroles']
+        verbs: ['get', 'list']
+        
+properties:
+  # All service accounts need to be defined as parameters in schema.yaml
+  # See https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools/blob/master/docs/schema.md#type-service_account
+  agentServiceAccount:
+    type: string
+    default: elastic-agent
+    title: Agent Service Account
+    description: "Agent Service Account: elastic-agent. Do not change."
+    x-google-marketplace:
+      type: SERVICE_ACCOUNT
+      serviceAccount:
+        description: >
+          Agent Service Account: elastic-agent
+        roles:
+        # https://github.com/elastic/elastic-agent/blob/f26b0eb53fa5b08c23a3145156cd4a245ad04f32/deploy/kubernetes/elastic-agent-managed/elastic-agent-managed-role.yaml#L1
+        - type: ClusterRole
+          rulesType: CUSTOM
+          rules:
+          - apiGroups: [""]
+            resources:
+              - nodes
+              - namespaces
+              - events
+              - pods
+              - services
+              - configmaps
+              - serviceaccounts
+              - persistentvolumes
+              - persistentvolumeclaims
+            verbs: ["get", "list", "watch"]
+          # Enable this rule only if planing to use kubernetes_secrets provider
+          #- apiGroups: [""]
+          #  resources:
+          #  - secrets
+          #  verbs: ["get"]
+          - apiGroups: ["extensions"]
+            resources:
+              - replicasets
+            verbs: ["get", "list", "watch"]
+          - apiGroups: ["apps"]
+            resources:
+              - statefulsets
+              - deployments
+              - replicasets
+              - daemonsets
+            verbs: ["get", "list", "watch"]
+          - apiGroups:
+              - ""
+            resources:
+              - nodes/stats
+            verbs:
+              - get
+          - apiGroups: [ "batch" ]
+            resources:
+              - jobs
+              - cronjobs
+            verbs: [ "get", "list", "watch" ]
+          # required for apiserver
+          # nonResourceURLs is not supported by this schema: https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools/blob/b309eb922897ec4b11356dd975941e20b51ae16c/marketplace/deployer_util/config_helper.py#L981
+          # - nonResourceURLs:
+          #     - "/metrics"
+          #   verbs:
+          #     - get
+          # - apiGroups: ["rbac.authorization.k8s.io"]
+          #   resources:
+          #     - clusterrolebindings
+          #     - clusterroles
+          #     - rolebindings
+          #     - roles
+          #   verbs: ["get", "list", "watch"]
+          - apiGroups: ["policy"]
+            resources:
+              - podsecuritypolicies
+            verbs: ["get", "list", "watch"]
+        # https://github.com/elastic/elastic-agent/blob/f26b0eb53fa5b08c23a3145156cd4a245ad04f32/deploy/kubernetes/elastic-agent-managed/elastic-agent-managed-role.yaml#L64
+        - type: Role
+          rulesType: CUSTOM
+          rules:
+            - apiGroups:
+                - coordination.k8s.io
+              resources:
+                - leases
+              verbs: ["get", "create", "update"]
+        # https://github.com/elastic/elastic-agent/blob/f26b0eb53fa5b08c23a3145156cd4a245ad04f32/deploy/kubernetes/elastic-agent-managed/elastic-agent-managed-role.yaml#L79
+        - type: Role
+          rulesType: CUSTOM
+          rules:
+            - apiGroups: [""]
+              resources:
+                - configmaps
+              resourceNames:
+                - kubeadm-config
+              verbs: ["get"]
+
+  name:
+    type: string
+    title: Agent Instance Name
+    description: Agent Instance Name
+    x-google-marketplace:
+      type: NAME
+    default: elastic-agent
+  namespace:
+    type: string
+    default: kube-system
+    title: Agent Namespace
+    description: "Namespace the agent will be deployed to: kube-system. Do not change."
+    x-google-marketplace:
+      type: NAMESPACE
+  FLEET_URL:
+    type: string
+    title: Fleet server URL
+    description: "Fleet server URL. If left empty KIBANA_HOST, KIBANA_FLEET_USERNAME, KIBANA_FLEET_PASSWORD are needed"
+  FLEET_ENROLLMENT_TOKEN:
+    type: string
+    title: Fleet enrollment token
+    description: "A Fleet enrollment token is an Elasticsearch API key to enroll one or more Elastic Agents in Fleet. See: https://www.elastic.co/guide/en/fleet/current/fleet-enrollment-tokens.html. If left empty KIBANA_HOST, KIBANA_FLEET_USERNAME, KIBANA_FLEET_PASSWORD are needed"
+  KIBANA_FLEET_USERNAME:
+    type: string
+    title: Kibana User Name
+    description: User name to connect to Kibana. Fill it only if FLEET_URL has been left empty.
+  KIBANA_FLEET_PASSWORD:
+    type: string
+    title: Kibana User Password
+    description: Kibana user password to log into the elastic cluster. Fill it only if FLEET_URL has been left empty.
+  KIBANA_HOST:
+    type: string
+    title: Kibana URL
+    description: Kibana Host URL. Fill it only if FLEET_URL has been left empty.
+  cpuResurceRequest:
+    type: string
+    title: Container Resource Request - CPU
+    description: Container Resource Request - CPU. Ex. 100m
+    default: 100m
+  memoryResurceRequest:
+    type: string
+    title: Container Resource Request - Memory
+    description: Container Resource Request - Memory. Ex. 200Mi
+    default: 200Mi
+
+required:
+- name
+- namespace
+- agentServiceAccount

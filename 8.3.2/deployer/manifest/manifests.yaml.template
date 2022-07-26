@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: "$name"
+  namespace: "$namespace"
+  labels:
+    app: "$name"
+spec:
+  selector:
+    matchLabels:
+      app: "$name"
+  template:
+    metadata:
+      labels:
+        app: "$name"
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      serviceAccountName: $agentServiceAccount
+      hostNetwork: true
+      # Sharing the host process ID namespace gives visibility of all processes running on the same host.
+      # This enables the Elastic Security integration to observe all process exec events on the host.
+      hostPID: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: elastic-agent
+          image: $image
+          env:
+            - name: FLEET_ENROLL
+              value: "1"
+            # The ip:port pair of fleet server
+            - name: FLEET_URL
+              value: "$FLEET_URL"
+            # If left empty KIBANA_HOST, KIBANA_FLEET_USERNAME, KIBANA_FLEET_PASSWORD are needed
+            - name: FLEET_ENROLLMENT_TOKEN
+              value: "$FLEET_ENROLLMENT_TOKEN"
+            - name: KIBANA_HOST
+              value: "$KIBANA_HOST"
+            - name: KIBANA_FLEET_USERNAME
+              value: "$KIBANA_FLEET_USERNAME"
+            - name: KIBANA_FLEET_PASSWORD
+              value: "$KIBANA_FLEET_PASSWORD"
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          securityContext:
+            runAsUser: 0
+          resources:
+            limits:
+              memory: 500Mi
+            requests:
+              cpu: $cpuResurceRequest
+              memory: $memoryResurceRequest
+          volumeMounts:
+            - name: proc
+              mountPath: /hostfs/proc
+              readOnly: true
+            - name: cgroup
+              mountPath: /hostfs/sys/fs/cgroup
+              readOnly: true
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+            - name: etc-kubernetes
+              mountPath: /hostfs/etc/kubernetes
+              readOnly: true
+            - name: var-lib
+              mountPath: /hostfs/var/lib
+              readOnly: true
+            - name: passwd
+              mountPath: /hostfs/etc/passwd
+              readOnly: true
+            - name: group
+              mountPath: /hostfs/etc/group
+              readOnly: true
+            - name: etcsysmd
+              mountPath: /hostfs/etc/systemd
+              readOnly: true
+            - name: etc-mid
+              mountPath: /etc/machine-id
+              readOnly: true
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: etc-kubernetes
+          hostPath:
+            path: /etc/kubernetes
+        - name: var-lib
+          hostPath:
+            path: /var/lib
+        - name: passwd
+          hostPath:
+            path: /etc/passwd
+        - name: group
+          hostPath:
+            path: /etc/group
+        - name: etcsysmd
+          hostPath:
+            path: /etc/systemd
+        - name: etc-mid
+          hostPath:
+            path: /etc/machine-id
+            type: File
