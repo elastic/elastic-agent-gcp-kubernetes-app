@@ -1,3 +1,11 @@
+resource "google_project_service" "gke" {
+  service = "container.googleapis.com"
+
+  disable_dependent_services = false
+  # NOTE: this settings will require manual disabling of the API after destroy
+  disable_on_destroy = false
+}
+
 # GKE cluster
 resource "google_container_cluster" "test" {
   name = "${var.name}-test"
