@@ -20,6 +20,5 @@ if [ -z "${DEPLOYER_VERSION:-}" ]; then
   DEPLOYER_VERSION=$(get_current_version)
 fi
 
-mpdev /scripts/verify \
-  --deployer="$REGISTRY/$APP_NAME/deployer:$DEPLOYER_VERSION" \
-  --parameters='{"name": "elastic-agent", "namespace": "kube-system" }'
+# https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools/blob/master/docs/mpdev-references.md#smoke-test-an-application
+mpdev /scripts/verify --deployer="$REGISTRY/$APP_NAME/deployer:$DEPLOYER_VERSION"
