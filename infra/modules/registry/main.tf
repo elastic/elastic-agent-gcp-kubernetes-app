@@ -6,14 +6,16 @@ resource "google_project_service" "project" {
   service = "containerscanning.googleapis.com"
 
   disable_dependent_services = false
-  disable_on_destroy = true
+  # NOTE: this settings will require manual disabling of the API after destroy
+  disable_on_destroy = false
 }
 
 resource "google_project_service" "registry" {
   service = "containerregistry.googleapis.com"
 
   disable_dependent_services = false
-  disable_on_destroy = true
+  # NOTE: this settings will require manual disabling of the API after destroy
+  disable_on_destroy = false
 }
 
 resource "google_container_registry" "registry" {}
