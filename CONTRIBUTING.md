@@ -60,10 +60,10 @@ To port a new version:
    - set `CLOUDSDK_CONTAINER_CLUSTER`, `CLOUDSDK_COMPUTE_ZONE` and `CLOUDSDK_CORE_PROJECT`
    - (optional) set `GCP_GCR` (default to `gcr.io`) if you want to target a regional registry
    - set `ELASTIC_AGENT_VERSION` env var to the version value
-5. Run `./tools/scripts/build.sh` to build and push agent and deployer images
-6. **If this is the latest release for a specific release track**, run `./tools/scripts/tag-release-track.sh` to move the release track tag to the latest image. 
-7. Run `./tools/scripts/check.sh` to verify that agent and deployer images are available and correctly tagged
-8. Run `./tools/scripts/verify.sh` to verify the agent and deployer images, using a live GKE cluster
+5. Run `./tools/scripts/build.sh` to build and push agent and deployer images;
+6. run `./tools/scripts/tag-release-track.sh` to move the release track tag to the latest image; 
+7. Run `./tools/scripts/check.sh` to verify that agent and deployer images are available and correctly tagged;
+8. Run `./tools/scripts/verify.sh` to verify the agent and deployer images, using a live GKE cluster.
 
 # Checking if all expected versions are present
 
