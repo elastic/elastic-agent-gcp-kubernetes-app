@@ -66,7 +66,9 @@ else
   
   status=0
 
-  for d in ./7*
+  echo ""
+  echo "7.x release track:"
+  for d in ./7*/
   do
     v="$(echo "$d" | cut -d/ -f2 | cut -d- -f2)"
     v="$(ELASTIC_AGENT_VERSION=$v get_current_version)"
@@ -80,7 +82,10 @@ else
       status=$err_exit_code
     fi
   done
-  for d in ./8*
+
+  echo ""
+  echo "8.x release track:"
+  for d in ./8*/
   do
     v="$(echo "$d" | cut -d/ -f2 | cut -d- -f2)"
     v="$(ELASTIC_AGENT_VERSION=$v get_current_version)"
