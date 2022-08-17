@@ -1,6 +1,6 @@
 # Registry
 
-There is a required folder structure for the registry in GCP.
+There is a required folder structure for the registry in GCP to support a GCP Kubernetes App.
 
 From the [GCP docs](https://cloud.google.com/marketplace/docs/partners/kubernetes/create-app-package#application-images):
 
