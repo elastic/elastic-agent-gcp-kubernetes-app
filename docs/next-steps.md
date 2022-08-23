@@ -4,7 +4,7 @@ If you successfully installed the application by following the steps [here](./in
 
 By default the Elastic Agent does not have any policy assigned so will not collect any data.
 
-Here is a list of common use cases and how to setup Elastic Agent policies to collect releated data.
+Here is a list of common use cases and how to setup Elastic Agent policies to collect related data.
 
 ## Kubernetes Observability
 

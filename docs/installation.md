@@ -7,11 +7,11 @@ We maintain `7.17.x` and `8.x` stack versions.
 Elastic recommends installing the latest version of the Elastic Agent that’s compatible with the version of your Elasticsearch deployment.
 You can review compatibility guidelines [here][1].
 
-By clicking "Configure" a guided process starts to collect some deploymenta details.
+By clicking "Configure" a guided process starts to collect some deployment details.
 
 You will need to choose:
 - the GKE cluster where to deploy the application: you can select an existing cluster or create a new one;
-- the namespace within the GKE cluster; selecting `default` will deploy the Application to the `default` namespace and the Elastic Agent in the (`kube-system`);
+- the namespace within the GKE cluster; selecting `default` will deploy the Application to the `default` namespace and the Elastic Agent in the `kube-system` namespace;
 - the application instance name (this is the name of the deployed application in your GKE cluster);
 - the Service Account of the application; **do not change this field**, a dedicated Service Account with required permissions will be created;
 - Fleet Server URL to connect to; if left empty Kibana Host, Kibana Fleet Username and Kibana Fleet Password are needed;
