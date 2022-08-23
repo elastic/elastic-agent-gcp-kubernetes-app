@@ -1,6 +1,6 @@
 # Next steps
 
-If you installed the application great, is now ready to collect data!
+If you successfully installed the application by following the steps [here](./installation.md), great job! Now you're ready to collect some data!
 
 By default the Elastic Agent does not have any policy assigned so will not collect any data.
 
