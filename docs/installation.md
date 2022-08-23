@@ -2,7 +2,10 @@
 
 To install this application you should search for "Elastic Agent" in the GCP Marketplace and install it through the GCP Console.
 
-From the product listing you can choose the version of the application to install. We maintain `7.17.x` and `8.x` stack versions.
+From the product listing you can choose the version of the application to install.
+We maintain `7.17.x` and `8.x` stack versions.
+Elastic recommends installing the latest version of the Elastic Agent that’s compatible with the version of your Elasticsearch deployment.
+You can review compatibility guidelines [here][1].
 
 By clicking "Configure" a guided process starts to collect some deploymenta details.
 
@@ -16,8 +19,8 @@ You will need to choose:
 - Kibana Username; user name to connect to Kibana;
 - Kibana Fleet Password; password to connect to Kibana;
 - Kibana Host; URL to connect to Kibana;
-- Container resource request - CPU; the requested container CPU, depends on use case;
-- Container Resource Request - Memory; the requested container memory, depends on use case.
+- Container resource request - CPU; the requested container CPU, depends on use case; more information are available in our [Elastic Agent installation - minimum requirements documentation][2];
+- Container Resource Request - Memory; the requested container memory, depends on use case; more information are available in our [Elastic Agent installation - minimum requirements documentation][2].
 
 Once the application is installed it should automatically enroll in Fleet. 
 
@@ -30,7 +33,7 @@ To collect data go to the Fleet UI and configure an Agent Policy.
 Here are the steps to verify the installation worked as expected:
 1. ensure there are no errors in the installed Application page in the GCP Console;
 2. verify the Elastic Agent DaemonSet status, by clicking on it under Application Details; check Logs to ensure there are no errors;
-3. verify the Elastic Agent correctly enrolled with your Fleet instance;
+3. verify the Elastic Agent correctly enrolled with your Fleet instance; go to the Agents tab in Fleet and ensure the Agent is present and healthy.
 
 **NOTE** that unless you already configured a policy the Agent will not be collecting data.
 
@@ -43,3 +46,7 @@ The GCP Console allows to perform graphically what you could do with command lin
 If you need specific assistance you can:
 - ask for suggestion and guidance on [Elastic Discuss](https://discuss.elastic.co/);
 - (if you have a [subscription](https://www.elastic.co/subscriptions)) get in touch with [Elastic Support](https://support.elastic.co/).
+
+
+[1]: https://www.elastic.co/support/matrix#matrix_compatibility
+[2]: https://www.elastic.co/guide/en/fleet/current/elastic-agent-installation.html#_minimum_requirements
