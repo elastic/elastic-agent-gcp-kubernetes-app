@@ -77,8 +77,32 @@ tagAndPushImage() {
         docker tag "$image:$version" "$image:$releaseTrack"
         docker push "$image:$releaseTrack"
     else
-        >&2 echo "    no local image, skipping"
+        >&2 echo "    > no local image, skipping"
     fi
+}
+
+remoteImageDigest() {
+    local image
+    image=$1
+    local version
+    version=$2
+    local releaseTrack
+    releaseTrack=$3
+
+    gcloud container images list-tags "$image" --filter="tags ~ $releaseTrack" --format=json | \
+        jq ".[] | select(.tags[] | select(. == \"$version\")) | .digest" --raw-output
+}
+
+localImageDigest() {
+    local image
+    image=$1
+    local version
+    version=$2
+    local releaseTrack
+    releaseTrack=$3
+
+    docker images --digests --format "{{json .}}"| \
+        jq "select(.Repository == \"$image\") | select(.Tag == \"$releaseTrack\") | .Digest" --raw-output
 }
 
 tagImages() {
@@ -94,70 +118,62 @@ tagImages() {
         >&2 echo
         >&2 echo "==> $(tput bold)release track $releaseTrack, candidate image: $version$(tput sgr0)"
 
-        # agent
-        >&2 echo "==> agent remote:"
-        if findInRemoteRegistry "$gcr_elastic_agent_image" "$version"; then
-            gcloud container images list-tags "$gcr_elastic_agent_image" --filter="tags ~ $version"
-        else
-            >&2 echo "    no $version image in remote registry"
-        fi
-        if findInRemoteRegistry "$gcr_elastic_agent_image" "$releaseTrack"; then
-            gcloud container images list-tags "$gcr_elastic_agent_image" --filter="tags ~ $releaseTrack"
-        else
-            >&2 echo "    no image $releaseTrack image in remote registry"
-        fi
-        >&2 echo "==> agent local:"
-        if findInLocalRegistry "$gcr_elastic_agent_image" "$version"; then
-            docker images "$gcr_elastic_agent_image:$version"
-        else
-            >&2 echo "    no $version image in local registry"
-        fi
-        if findInLocalRegistry "$gcr_elastic_agent_image" "$releaseTrack"; then
-            docker images "$gcr_elastic_agent_image:$releaseTrack"
-        else
-            >&2 echo "    no $releaseTrack image in local registry"
-        fi
-        
-        >&2 echo ""
-        tagAndPushImage "$gcr_elastic_agent_image" "$version" "$releaseTrack"
+        agentLocalDigest=$(localImageDigest "$gcr_elastic_agent_image" "$version" "$releaseTrack")
+        agentRemoteDigest=$(remoteImageDigest "$gcr_elastic_agent_image" "$version" "$releaseTrack")
 
-        # deployer    
-        >&2 echo "==> deployer remote:"
-        if findInRemoteRegistry "$gcr_deployer_image" "$version"; then
-            gcloud container images list-tags "$gcr_deployer_image" --filter="tags ~ $version"
+        >&2 echo "==> agent:"
+        if [ -n "$agentLocalDigest" ]; then
+            >&2 echo "    local digest:  $agentLocalDigest"
         else
-            >&2 echo "    no $version image in remote registry"
+            >&2 echo "    $(tput setaf 1)no $version image in local registry$(tput sgr0)"
         fi
-        if findInRemoteRegistry "$gcr_deployer_image" "$releaseTrack"; then
-            gcloud container images list-tags "$gcr_deployer_image" --filter="tags ~ $releaseTrack"
+        if [ -n "$agentRemoteDigest" ]; then
+            >&2 echo "    remote digest: $agentRemoteDigest"
         else
-            >&2 echo "    no image $releaseTrack image in remote registry"
-        fi 
-        >&2 echo "==> deployer local:"
-        if findInLocalRegistry "$gcr_deployer_image" "$version"; then
-            docker images "$gcr_deployer_image:$version"
-        else
-            >&2 echo "    no $version image in local registry"
+            >&2 echo "    $(tput setaf 1)no $version image in remote registry$(tput sgr0)"
         fi
-        if findInLocalRegistry "$gcr_deployer_image" "$releaseTrack"; then
-            docker images "$gcr_deployer_image:$releaseTrack"
-        else
-            >&2 echo "    no $releaseTrack image in local registry"
+
+        if [ -z "$agentRemoteDigest" ]; then
+            >&2 echo "    Pushing local image to remote:"
+            tagAndPushImage "$gcr_elastic_agent_image" "$version" "$releaseTrack"
         fi
         
-        >&2 echo ""
-        tagAndPushImage "$gcr_deployer_image" "$version" "$releaseTrack"
+        deployerLocalDigest=$(localImageDigest "$gcr_deployer_image" "$version" "$releaseTrack")
+        deployerRemoteDigest=$(remoteImageDigest "$gcr_deployer_image" "$version" "$releaseTrack")
+
+        >&2 echo "==> deployer:"
+        if [ -n "$deployerLocalDigest" ]; then
+            >&2 echo "    local digest:  $deployerLocalDigest"
+        else
+            >&2 echo "    $(tput setaf 1)no $version image in local registry$(tput sgr0)"
+        fi
+        if [ -n "$deployerRemoteDigest" ]; then
+            >&2 echo "    remote digest: $deployerRemoteDigest"
+        else
+            >&2 echo "    $(tput setaf 1)no $version image in remote registry$(tput sgr0)"
+        fi
+
+        if [ -z "$deployerRemoteDigest" ]; then
+            >&2 echo "    Pushing local image to remote:"
+            tagAndPushImage "$gcr_deployer_image" "$version" "$releaseTrack"
+        fi
+
+        continue
     done
 }
 
+# get all folders in CWD
 versions=(*/)
 
 v7=()
 v8=()
 
+# collect valid image tag names (from folder names)
 for f in "${versions[@]}"; do
     v=$(echo "$f" | awk '{ print substr( $0, 1, length($0)-1 ) }')
+    # collect folder starting with 7
     if [[ "$v" == 7* ]]; then v7+=("$v"); fi
+    # collect folder starting with 8
     if [[ "$v" == 8* ]]; then v8+=("$v"); fi
 done
 
