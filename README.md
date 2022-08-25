@@ -13,7 +13,5 @@ Is possible to install this application in [non-GKE clusters too].
 
 Each Elastic Agent version requires some configuration to be made available as a GCP Kubernetes App. The current available versions are:
 
-- `8.1.0`
-- `8.1.1`
-- `8.1.2`
-- `8.1.3` (recommended)
+- `7.17` release track backed by `7.17.5`
+- `8.3` release track backed by `8.3.3` (recommended)
