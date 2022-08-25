@@ -40,6 +40,4 @@ popd
 
 popd
 
-write_buildID "$(next_buildID)" > /dev/null
-
 echo "Build app image and deployer version: $tag"
