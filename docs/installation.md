@@ -11,9 +11,9 @@ By clicking "Configure" a guided process starts to collect some deployment detai
 
 You will need to choose:
 - the GKE cluster where to deploy the application: you can select an existing cluster or create a new one;
-- the namespace within the GKE cluster; selecting `default` will deploy the Application to the `default` namespace and the Elastic Agent in the `kube-system` namespace;
+- the namespace within the GKE cluster to deploy the Application; selecting `default` will deploy the Application to the `default` namespace and the Elastic Agent in the `kube-system` namespace;
 - the application instance name (this is the name of the deployed application in your GKE cluster);
-- the Service Account of the application; **do not change this field**, a dedicated Service Account with required permissions will be created;
+- the Service Account of the application; use `default`, **do not change this field**; a dedicated Service Account with required permissions will be created; this field is included because mandatory part of the schema (see [docs][3]);
 - Fleet Server URL to connect to; if left empty Kibana Host, Kibana Fleet Username and Kibana Fleet Password are needed;
 - Fleet enrollment token; is an Elasticsearch API key to enroll one or more Elastic Agents in Fleet. See: https://www.elastic.co/guide/en/fleet/current/fleet-enrollment-tokens.html. If left empty Kibana Host, Kibana Fleet Username and Kibana Fleet Password are needed;
 - Kibana Username; user name to connect to Kibana;
@@ -50,3 +50,4 @@ If you need specific assistance you can:
 
 [1]: https://www.elastic.co/support/matrix#matrix_compatibility
 [2]: https://www.elastic.co/guide/en/fleet/current/elastic-agent-installation.html#_minimum_requirements
+[3]: https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools/blob/master/docs/schema.md?rgh-link-date=2022-08-23T11%3A04%3A33Z#type-service_account
