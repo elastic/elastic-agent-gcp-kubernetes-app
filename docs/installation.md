@@ -16,9 +16,9 @@ You will need to choose:
 - the Service Account of the application; use `default`, **do not change this field**; a dedicated Service Account with required permissions will be created; this field is included because mandatory part of the schema (see [docs][3]);
 - Fleet Server URL to connect to; if left empty Kibana Host, Kibana Fleet Username and Kibana Fleet Password are needed;
 - Fleet enrollment token; is an Elasticsearch API key to enroll one or more Elastic Agents in Fleet. See: https://www.elastic.co/guide/en/fleet/current/fleet-enrollment-tokens.html. If left empty Kibana Host, Kibana Fleet Username and Kibana Fleet Password are needed;
-- Kibana Username; user name to connect to Kibana;
+- Kibana Username; user name to connect to Kibana; this user needs the privileges required to publish events to Elasticsearch;
 - Kibana Fleet Password; password to connect to Kibana;
-- Kibana Host; URL to connect to Kibana;
+- Kibana Host; URL to connect to Kibana; if you're using Elastic Cloud Kibana URL can be found in the console on the deployment details page;
 - Container resource request - CPU; the requested container CPU, depends on use case; more information are available in our [Elastic Agent installation - minimum requirements documentation][2];
 - Container Resource Request - Memory; the requested container memory, depends on use case; more information are available in our [Elastic Agent installation - minimum requirements documentation][2].
 
