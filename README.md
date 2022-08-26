@@ -13,5 +13,24 @@ Is possible to install this application in [non-GKE clusters too].
 
 Each Elastic Agent version requires some configuration to be made available as a GCP Kubernetes App. The current available versions are:
 
-- `7.17` release track backed by `7.17.5`
-- `8.3` release track backed by `8.3.3` (recommended)
+|Release track|Version|Recommended
+|---|---|---|
+|`7.17`|`7.17.5`||
+|`8.3`|`8.3.3`|✔|
+
+## Documentation
+
+- [How it works](./docs/how-it-works.md)
+- [Installation](./docs/installation.md)
+- [Next steps](./docs/next-steps.md)
+- [Upgrading the application](./docs/upgrading.md)
+- [Removing the application](./docs/deleting.md)
+
+If you are contributing to this repository this documentation dives into more technical details:
+
+- [CONTRIBUTING guidelines](./CONTRIBUTING.md)
+- [Kubernetes App](./docs/kubernetes-app.md)
+- [Deployer](./docs/deployer.md)
+- [App schema](./docs/schema.md)
+- [GCP Container Registry structure](./docs/registry-structure.md)
+- [Checking images](./docs/checking-images.md)
