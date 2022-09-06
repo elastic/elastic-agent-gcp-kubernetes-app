@@ -17,7 +17,7 @@ Each Elastic Agent version requires some configuration to be made available as a
 |---|---|---|
 |`7.17`|`7.17.5`||
 |`8.3`|`8.3.3`||
-|`8.4`|`8.4.0`|✔|
+|`8.4`|`8.4.1`|✔|
 
 ## Documentation
 
