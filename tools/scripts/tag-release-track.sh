@@ -14,71 +14,24 @@ checkvar "GCP_PROJECT_ID" "the GCP project where to move Elastic Agent Docker im
 gcr_elastic_agent_image="$GCP_GCR/$GCP_PROJECT_ID/elastic-agent"
 gcr_deployer_image="$GCP_GCR/$GCP_PROJECT_ID/elastic-agent/deployer"
 
-getTracks() {
-    local versions
-    versions=("$@")
-
-    # Convert a BASH array to jq array and apply a tranformation to collect all 
-    # track versions and their respective latest version based on the folders available.
-    # The resulting value is an object in the form of: { track: version, ... } for each 
-    # track identified by the list of folders.
-    # NOTE: This is made possible by using the version string as folder name.
-    # NOTE: the order of the list is meaningful, as the reduce overwrites previous entries;
-    #       this allows to get the **latest** version for the given release track.
-    jq --compact-output --null-input '$ARGS.positional' --args -- "${versions[@]}" | \
-    jq '[sort | foreach .[] as $e ([]; {"track": ($e | split(".") | .[0:2] | join(".")), "version": $e}; .)] | INDEX(.track)'
+gcloud_GetImageDigest() {
+    local image
+    image=$1
+    local version
+    version=$2
+    
+    gcloud container images list-tags "$image" --filter="tags ~ $version" --format=json | \
+        jq ".[] | select(.tags[] | select(. == \"$version\")) | .digest" --raw-output
 }
 
-findInLocalRegistry() {
+docker_GetImageDigest() {
     local image
     image=$1
     local version
     version=$2
 
-    num=$(docker images "$image:$version" -q | wc -l)
-    if [[ $num -gt 0 ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-findInRemoteRegistry() {
-    local image
-    image=$1
-    local version
-    version=$2
-
-    # This command returns true or false based on existance of the specified tag on the specified image
-    # in the remote registry.
-    # It collects all tags, filters them with jq and returns true or false based on the length of the result. If
-    # the filtered result is 0-length the image:tag combination is missing.
-    # NOTE: this is because there is no way to filter for a tag if the same tag is a substring of another tag 
-    # (i.e. 8.3 substring of 8.3.0, 8.3.1, 8.3.2, ...).
-    exists=$(gcloud container images list-tags "$image" --flatten='tags' --format json | jq "[.[] | select(.tags == \"$version\")] | length != 0")
-
-    if [[ "$exists" == "true" ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-tagAndPushImage() {
-    local image
-    image=$1
-    local version
-    version=$2
-    local releaseTrack
-    releaseTrack=$3
-
-    # the local image must be present to tag&push it
-    if findInLocalRegistry "$image" "$version"; then
-        docker tag "$image:$version" "$image:$releaseTrack"
-        docker push "$image:$releaseTrack"
-    else
-        >&2 echo "    > no local image, skipping"
-    fi
+    docker images --digests --format "{{json .}}"| \
+        jq "select(.Repository == \"$image\") | select(.Tag == \"$version\") | .Digest" --raw-output
 }
 
 remoteImageDigest() {
@@ -89,8 +42,18 @@ remoteImageDigest() {
     local releaseTrack
     releaseTrack=$3
 
-    gcloud container images list-tags "$image" --filter="tags ~ $releaseTrack" --format=json | \
-        jq ".[] | select(.tags[] | select(. == \"$version\")) | .digest" --raw-output
+    gcloud_GetImageDigest "$image" "$version"
+}
+
+remoteTrackImageDigest() {
+    local image
+    image=$1
+    local version
+    version=$2
+    local releaseTrack
+    releaseTrack=$3
+
+    gcloud_GetImageDigest "$image" "$releaseTrack"
 }
 
 localImageDigest() {
@@ -101,81 +64,120 @@ localImageDigest() {
     local releaseTrack
     releaseTrack=$3
 
-    docker images --digests --format "{{json .}}"| \
-        jq "select(.Repository == \"$image\") | select(.Tag == \"$releaseTrack\") | .Digest" --raw-output
+    docker_GetImageDigest "$image" "$version"
 }
 
-tagImages() {
-    local images
-    images=("$@")
+localTrackImageDigest() {
+    local image
+    image=$1
+    local version
+    version=$2
+    local releaseTrack
+    releaseTrack=$3
 
-    [ -n "${DEBUG:-}" ] && getTracks "${images[@]}" | jq -c
-
-    for f in $(getTracks "${images[@]}" | jq -c ".[]"); do
-        version=$(jq -r ".version" <<< "$f")
-        releaseTrack=$(jq -r ".track" <<< "$f")
-
-        >&2 echo
-        >&2 echo "==> $(tput bold)release track $releaseTrack, candidate image: $version$(tput sgr0)"
-
-        agentLocalDigest=$(localImageDigest "$gcr_elastic_agent_image" "$version" "$releaseTrack")
-        agentRemoteDigest=$(remoteImageDigest "$gcr_elastic_agent_image" "$version" "$releaseTrack")
-
-        >&2 echo "==> agent:"
-        if [ -n "$agentLocalDigest" ]; then
-            >&2 echo "    local digest:  $agentLocalDigest"
-        else
-            >&2 echo "    $(tput setaf 1)no $version image in local registry$(tput sgr0)"
-        fi
-        if [ -n "$agentRemoteDigest" ]; then
-            >&2 echo "    remote digest: $agentRemoteDigest"
-        else
-            >&2 echo "    $(tput setaf 1)no $version image in remote registry$(tput sgr0)"
-        fi
-
-        if [ -z "$agentRemoteDigest" ]; then
-            >&2 echo "    Pushing local image to remote:"
-            tagAndPushImage "$gcr_elastic_agent_image" "$version" "$releaseTrack"
-        fi
-        
-        deployerLocalDigest=$(localImageDigest "$gcr_deployer_image" "$version" "$releaseTrack")
-        deployerRemoteDigest=$(remoteImageDigest "$gcr_deployer_image" "$version" "$releaseTrack")
-
-        >&2 echo "==> deployer:"
-        if [ -n "$deployerLocalDigest" ]; then
-            >&2 echo "    local digest:  $deployerLocalDigest"
-        else
-            >&2 echo "    $(tput setaf 1)no $version image in local registry$(tput sgr0)"
-        fi
-        if [ -n "$deployerRemoteDigest" ]; then
-            >&2 echo "    remote digest: $deployerRemoteDigest"
-        else
-            >&2 echo "    $(tput setaf 1)no $version image in remote registry$(tput sgr0)"
-        fi
-
-        if [ -z "$deployerRemoteDigest" ]; then
-            >&2 echo "    Pushing local image to remote:"
-            tagAndPushImage "$gcr_deployer_image" "$version" "$releaseTrack"
-        fi
-
-        continue
-    done
+    docker_GetImageDigest "$image" "$releaseTrack"
 }
+
+# From list of folders to JSON objects: {track: "", version: ""}
+folders2Tracks() {
+    local versions
+    versions=("$@")
+
+    jq --compact-output --null-input '$ARGS.positional' --args -- "${valid[@]}" | \
+        jq '[sort | foreach .[] as $e ([]; {"track": ($e | split(".") | .[0:2] | join(".")), "version": $e}; .)]'
+}
+
+getLatestTrack() {
+    local folders
+    folders=("$@")
+
+    # latest track image is simply the latest from folders2Tracks
+    # This relies on filesystem sorting
+    folders2Tracks  "${folders[@]}" | jq 'last'
+}
+
+# this function tags any $image:$version with $releaseTrack and push it to remote GCR.
+# Before doing so checks that local image exists and if local and remote digests for 
+# $releaseTrack differ.
+#
+# @param image the docker image to tag and push
+# @param version the full version of the image
+# @param releaseTrack the release track (major.minor) version desired
+componentTagImages() {
+    local image
+    image=$1
+    local version
+    version=$2
+    local releaseTrack
+    releaseTrack=$3
+    
+    >&2 echo "==> image: $image"
+
+    localDigest=$(localImageDigest "$image" "$version" "$releaseTrack")
+    if [ -n "$localDigest" ]; then
+        >&2 echo "    local $version digest : $localDigest"
+    else
+        >&2 echo "    $(tput setaf 1)no $version image in local registry$(tput sgr0)"
+        return
+    fi
+
+    remoteDigest=$(remoteImageDigest "$image" "$version" "$releaseTrack")
+    if [ -n "$remoteDigest" ]; then
+        >&2 echo "    remote $version digest: $remoteDigest"
+    else
+        >&2 echo "    $(tput setaf 1)no $version image in remote registry$(tput sgr0)"
+    fi
+
+    localTrackDigest=$(localTrackImageDigest "$image" "$version" "$releaseTrack")
+    if [ -n "$localTrackDigest" ]; then
+        >&2 echo "    local $releaseTrack digest   : $localTrackDigest"
+    else
+        >&2 echo "    $(tput setaf 1)no $releaseTrack image in local registry$(tput sgr0)"
+    fi
+
+    remoteTrackDigest=$(remoteTrackImageDigest "$image" "$version" "$releaseTrack")
+    if [ -n "$remoteTrackDigest" ]; then
+        >&2 echo "    remote $releaseTrack digest  : $remoteTrackDigest"
+    else
+        >&2 echo "    $(tput setaf 1)no $releaseTrack image in local registry$(tput sgr0)"
+    fi
+
+    if [ "$localDigest" != "$remoteTrackDigest" ]; then
+        >&2 echo -n "    Tagging local $version image as $releaseTrack:"
+        docker tag "$image:$version" "$image:$releaseTrack"
+        >&2 echo " ✔"
+        >&2 echo "    Pushing local $releaseTrack image to remote:"
+        docker push "$image:$releaseTrack"
+        >&2 echo "    $(tput setaf 2)local digest for $version pushed to remote digest for $releaseTrack$(tput sgr0)"
+    else
+        >&2 echo "    $(tput setaf 2)local digest for $version equal to remote digest for $releaseTrack$(tput sgr0)"
+    fi
+}
+
+checkvar "RELEASE_TRACK" "The release track to be verified and updated"
 
 # get all folders in CWD
 versions=(*/)
 
-v7=()
-v8=()
+valid=()
 
 # collect valid image tag names (from folder names)
 for f in "${versions[@]}"; do
     v=$(echo "$f" | awk '{ print substr( $0, 1, length($0)-1 ) }')
-    # collect folder starting with 7
-    if [[ "$v" == 7* ]]; then v7+=("$v"); fi
-    # collect folder starting with 8
-    if [[ "$v" == 8* ]]; then v8+=("$v"); fi
+    # get all folders starting with $RELEASE_TRACK
+    if [[ "$v" == $RELEASE_TRACK* ]]; then valid+=("$v"); fi
 done
 
-tagImages "${v7[@]}"
-tagImages "${v8[@]}"
+>&2 echo "==> Versions found for $(tput bold)$RELEASE_TRACK$(tput sgr0): $(tput bold)${valid[*]}$(tput sgr0)"
+
+[ -n "${DEBUG:-}" ] && folders2Tracks "${valid[@]}"
+[ -n "${DEBUG:-}" ] && getLatestTrack "$(folders2Tracks "${valid[@]}")"
+
+version=$(getLatestTrack "${valid[@]}" | jq -r ".version")
+releaseTrack=$(getLatestTrack "${valid[@]}" | jq -r ".track")
+
+>&2 echo
+>&2 echo "==> $(tput bold)release track $releaseTrack, candidate image: $version$(tput sgr0)"
+
+componentTagImages "$gcr_elastic_agent_image" "$version" "$releaseTrack"
+componentTagImages "$gcr_deployer_image" "$version" "$releaseTrack"
