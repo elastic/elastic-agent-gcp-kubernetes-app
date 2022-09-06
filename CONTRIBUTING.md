@@ -4,6 +4,7 @@
 2. Follow [GCP tool prerequisites]; you will also need to create the Application CRD (instruction at the link).
 3. Configure [GCP Docker auth helper]
 4. To run verification a working and reachable GKE cluster is needed.
+5. To run scripts againt `dev` or `prod` infrastructure, install `vault` CLI and configure it appropriately.
 
 [gcloud]: https://cloud.google.com/sdk/docs/install
 [GCP tool prerequisites]: https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools/blob/master/docs/tool-prerequisites.md
@@ -16,6 +17,7 @@
 `CLOUDSDK_CORE_PROJECT`: GCP project ID, should be equal to `GCP_PROJECT_ID`
 `GCP_PROJECT_ID`: the GCP Project ID all actions will be performed onto.
 `ELASTIC_AGENT_VERSION`: the Elastic Agent version to act upon.
+`VAULT_ADDR`: the Vault endpoint to use for `vault_generic_secret` Terraform resources.
 
 # Enabling debugging information
 
@@ -25,13 +27,14 @@ Set `DEBUG` environment variable to **any** value. When set enables `-x` (instru
 
 Each folder containing `agent` and `deployer` image. The application is deployed through a set of Kubernetes CRDs that are added to the `deployer` image. It may be needed to build the `deployer` image multiple times for each stack version. 
 
+<!-- Not true and unsure this is needed, as without having published this for the first time upgrade process is yet unknown.
 To support this use case versioning is in the form of: `X.Y.Z-gke.A`. This version is a Semantic Version compatible string where `X.Y.Z` follows usual Major.Minor.Patch and `-gke.A` is a [build metadata](https://semver.org/#spec-item-10) string where `A` is an incremental number starting at `1` that represent the number of build.
 
-This allow to offer the same Elastic Agent version while patching the Kubernetes CRDs used for deployment.
+This allow to offer the same Elastic Agent version while patching the Kubernetes CRDs used for deployment. -->
 
 # Release track
 
-The release track is the `MAJOR.MINOR` version; GCP **requires** that the latest image for a given release track (es `8.1.3` for `8.1`) to be tagged accordingly.
+The release track is the `MAJOR.MINOR` version; GCP **requires** that the latest image for a given release track (es `8.1.3` for `8.1`) to be tagged accordingly. This is the version the customer will see and be able to install.
 
 # Porting a new version
 
@@ -68,3 +71,11 @@ To port a new version:
 # Checking if all expected versions are present
 
 1. Run `./tools/scripts/check-all.sh`
+
+# Direnv
+
+By installing `direnv` is possible to leverage configurations in `infra/` folders that setup environment automatically from Terraform configurations.
+
+Use `direnv exec` and run it like this:
+- to run in `dev` environment: `direnv exec infra/dev tools/scripts/<script to run>`
+- to run in `prod` environment: `direnv exec infra/prod tools/scripts/<script to run>`
