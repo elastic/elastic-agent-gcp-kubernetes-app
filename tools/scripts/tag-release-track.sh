@@ -6,14 +6,6 @@ set -eou pipefail
 # shellcheck source=./_lib.sh
 . "$(dirname "${BASH_SOURCE[0]}")/_lib.sh"
 
-# Allow overriding GCR location
-GCP_GCR="${GCP_GCR:-gcr.io}"
-
-checkvar "GCP_PROJECT_ID" "the GCP project where to move Elastic Agent Docker images"
-
-gcr_elastic_agent_image="$GCP_GCR/$GCP_PROJECT_ID/elastic-agent"
-gcr_deployer_image="$GCP_GCR/$GCP_PROJECT_ID/elastic-agent/deployer"
-
 gcloud_GetImageDigest() {
     local image
     image=$1
@@ -154,7 +146,18 @@ componentTagImages() {
     fi
 }
 
-checkvar "RELEASE_TRACK" "The release track to be verified and updated"
+
+# Allow overriding GCR location
+GCP_GCR="${GCP_GCR:-gcr.io}"
+
+checkvar "GCP_PROJECT_ID" "the GCP project where to move Elastic Agent Docker images"
+
+gcr_elastic_agent_image="$GCP_GCR/$GCP_PROJECT_ID/elastic-agent"
+gcr_deployer_image="$GCP_GCR/$GCP_PROJECT_ID/elastic-agent/deployer"
+
+checkvar "ELASTIC_AGENT_VERSION" "the version of the Elastic Agent Docker image to move to GCP_PROJECT_ID"
+
+RELEASE_TRACK=$(echo "$ELASTIC_AGENT_VERSION" | awk -F \. '{version=$1"."$2; print version}')
 
 # get all folders in CWD
 versions=(*/)
