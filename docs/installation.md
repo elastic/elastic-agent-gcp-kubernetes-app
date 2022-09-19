@@ -9,7 +9,7 @@ You can review compatibility guidelines [here][1].
 
 The installation process requires:
 - an Elastic Stack deployment (either on prem or on [Elastic Cloud](https://www.elastic.co/cloud/));
-- a running Fleet server;
+- a [running Fleet server](https://www.elastic.co/guide/en/fleet/current/fleet-server.html);
 - a running GCP GKE cluster.
 
 ## Preparing Elastic for Kubernetes monitoring
