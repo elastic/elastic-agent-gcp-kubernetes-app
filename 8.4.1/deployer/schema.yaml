@@ -143,23 +143,11 @@ properties:
   FLEET_URL:
     type: string
     title: Fleet server URL
-    description: "Fleet server URL, can be found in Kibana->Management->Fleet->Settings. If left empty KIBANA_HOST, KIBANA_FLEET_USERNAME, KIBANA_FLEET_PASSWORD are needed"
+    description: "Fleet server URL, can be found in Kibana->Management->Fleet->Settings."
   FLEET_ENROLLMENT_TOKEN:
     type: string
     title: Fleet enrollment token
-    description: "A Fleet enrollment token is an Elasticsearch API key to enroll one or more Elastic Agents in Fleet. See: https://www.elastic.co/guide/en/fleet/current/fleet-enrollment-tokens.html. If left empty KIBANA_HOST, KIBANA_FLEET_USERNAME, KIBANA_FLEET_PASSWORD are needed"
-  KIBANA_FLEET_USERNAME:
-    type: string
-    title: Kibana User Name
-    description: User name to connect to Kibana. Fill it only if FLEET_URL has been left empty.
-  KIBANA_FLEET_PASSWORD:
-    type: string
-    title: Kibana User Password
-    description: Kibana user password to log into the elastic cluster. Fill it only if FLEET_URL has been left empty.
-  KIBANA_HOST:
-    type: string
-    title: Kibana URL
-    description: Kibana Host URL. Fill it only if FLEET_URL has been left empty.
+    description: "A Fleet enrollment token is an Elasticsearch API key to enroll one or more Elastic Agents in Fleet. See: https://www.elastic.co/guide/en/fleet/current/fleet-enrollment-tokens.html."
   cpuResurceRequest:
     type: string
     title: Container Resource Request - CPU
