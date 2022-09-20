@@ -2,9 +2,9 @@
 
 If you successfully installed the application by following the steps [here](./installation.md), great job! Now you're ready to collect some data!
 
-By default the Elastic Agent does not have any policy assigned so will not collect any data.
+By default the Elastic Agent will be assigned the Fleet Integration Policy linked to the Fleet enrollment token you used when installing the application. If that policy has some Integrations configured, the Agent should already be collecting data.
 
-Here is a list of common use cases and how to setup Elastic Agent policies to collect related data.
+If there is no Integration configured, here is a list of common use cases and how to setup Elastic Agent policies to collect related data.
 
 ## Kubernetes Observability
 

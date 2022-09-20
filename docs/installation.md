@@ -7,7 +7,20 @@ We maintain `7.17.x` and `8.x` stack versions.
 Elastic recommends installing the latest version of the Elastic Agent that’s compatible with the version of your Elasticsearch deployment.
 You can review compatibility guidelines [here][1].
 
-By clicking "Configure" a guided process starts to collect some deployment details.
+The installation process requires:
+- an Elastic Stack deployment (either on prem or on [Elastic Cloud](https://www.elastic.co/cloud/));
+- a [running Fleet server](https://www.elastic.co/guide/en/fleet/current/fleet-server.html);
+- a running GCP GKE cluster.
+
+## Preparing Elastic for Kubernetes monitoring
+
+Before installing the application we need to create a Fleet enrollment token, required in the installations step.
+
+To create a Fleet enrollment token you need to have an Agent policy. Then [follow the documentation][4].
+
+## Installing the application from GCP marketplace
+
+By clicking "Configure" (_link to listing TBD_) a guided process starts to collect some deployment details.
 
 You will need to choose:
 - the GKE cluster where to deploy the application: you can select an existing cluster or create a new one;
@@ -32,7 +45,7 @@ Here are the steps to verify the installation worked as expected:
 2. verify the Elastic Agent DaemonSet status, by clicking on it under Application Details; check Logs to ensure there are no errors;
 3. verify the Elastic Agent correctly enrolled with your Fleet instance; go to the Agents tab in Fleet and ensure the Agent is present and healthy.
 
-**NOTE** that unless you already configured a policy the Agent will not be collecting data.
+**NOTE** that unless the policy linked to the Fleet enrollment token has some integration configure, the the Agent will not be collecting data yet.
 
 ## Debugging
 
@@ -48,3 +61,4 @@ If you need specific assistance you can:
 [1]: https://www.elastic.co/support/matrix#matrix_compatibility
 [2]: https://www.elastic.co/guide/en/fleet/current/elastic-agent-installation.html#_minimum_requirements
 [3]: https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools/blob/master/docs/schema.md?rgh-link-date=2022-08-23T11%3A04%3A33Z#type-service_account
+[4]: https://www.elastic.co/guide/en/fleet/master/fleet-enrollment-tokens.html#create-fleet-enrollment-tokens
