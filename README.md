@@ -1,13 +1,13 @@
-**This is experimental and not yet available through GCP Marketplace**
+**This product is available through the GCP Marketplace: go to [Elastic Agent for GKE ](https://console.cloud.google.com/marketplace/product/elastic-prod/elastic-agent)**
 
 # GCP Kubernetes App for Elastic Agent
 
-[GCP Kubernetes App] are pre-packaged application that can be run in a Kubernetes cluster. GCP console allows installing them via a simplified procedure (GUI or CLI based) and they can potentially be sold in the GCP Marketplace. However, our listing of Elastic Agent as a Kubernetes App would be free.
+[GCP Kubernetes App][1] are pre-packaged application that can be run in a Kubernetes cluster. GCP console allows installing them via a simplified procedure (GUI or CLI based) and they can potentially be sold in the GCP Marketplace. However, our listing of Elastic Agent as a Kubernetes App would be free.
 
-Is possible to install this application in [non-GKE clusters too].
+Is possible to install this application in [non-GKE clusters too][2].
 
-[GCP Kubernetes App]: https://cloud.google.com/marketplace/docs/partners/kubernetes
-[non-GKE clusters too]: ttps://cloud.google.com/marketplace/docs/kubernetes-apps/deploying-non-gke-clusters
+[1]: https://cloud.google.com/marketplace/docs/partners/kubernetes
+[2]: ttps://cloud.google.com/marketplace/docs/kubernetes-apps/deploying-non-gke-clusters
 
 ## Versions
 
@@ -17,7 +17,8 @@ Each Elastic Agent version requires some configuration to be made available as a
 |---|---|---|
 |`7.17`|`7.17.5`||
 |`8.3`|`8.3.3`||
-|`8.4`|`8.4.1`|✔|
+|`8.4`|`8.4.1`||
+|`8.5`|`8.5.0`|✔|
 
 ## Documentation
 
