@@ -11,6 +11,22 @@ resource "google_container_cluster" "test" {
   name = "${var.name}-test"
 
   initial_node_count = 1
+
+  resource_labels = {
+    division = "engineering"
+    org      = "obs"
+    team     = "cloud-monitoring"
+    project  = "elastic-agent-gcp-kubernetes-app"
+  }
+
+  node_config {
+    resource_labels = {
+      division = "engineering"
+      org      = "obs"
+      team     = "cloud-monitoring"
+      project  = "elastic-agent-gcp-kubernetes-app"
+    }
+  }
 }
 
 data "google_client_config" "default" {}
