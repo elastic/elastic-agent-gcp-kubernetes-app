@@ -18,4 +18,5 @@ resource "google_project_service" "registry" {
   disable_on_destroy = false
 }
 
+# NOTE: does not support labels
 resource "google_container_registry" "registry" {}
