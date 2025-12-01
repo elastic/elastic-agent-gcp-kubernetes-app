@@ -15,11 +15,7 @@ Each Elastic Agent version requires some configuration to be made available as a
 
 | Release track | Version  |Recommended
 |---------------|----------|--|
-| `7.17`        | `7.17.5` ||
-| `8.3`         | `8.3.3`  ||
-| `8.4`         | `8.4.1`  ||
-| `8.5`         | `8.5.0`  ||
-| `8.17`        | `8.17.0` |✔|
+| `8.19`        | `8.19.7` |✔|
 
 ## Documentation
 
