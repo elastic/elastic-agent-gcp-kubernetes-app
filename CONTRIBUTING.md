@@ -10,6 +10,24 @@
 [GCP tool prerequisites]: https://github.com/GoogleCloudPlatform/marketplace-k8s-app-tools/blob/master/docs/tool-prerequisites.md
 [GCP Docker auth helper]: https://cloud.google.com/container-registry/docs/advanced-authentication
 
+_NOTE_: As of December 2025, GCP has certain requirements for building container images
+which will cause validation to fail once submitted to the partner portal:
+
+1. If using Docker Desktop for Mac (as of this writing version `4.53.0 (211793)`),
+`Use containerd for pulling and storing images` needs disabled in the Settings menu
+in order to build an image with the correct `mediaType` in the manifest: `application/vnd.docker.distribution.manifest.v2+json`. This step may be unnecessary on other platforms/versions.
+2. After using the `build.sh` script, the [`crane`](https://michaelsauter.github.io/crane/index.html) tool was required to set the [necessary annotation](https://docs.cloud.google.com/marketplace/docs/partners/kubernetes/create-app-package#application-images). Once `crane` is installed, run the command:
+
+```shell
+crane mutate <image_name>:<version> \
+
+        --annotation com.googleapis.cloudmarketplace.product.service.name=services/elastic-agent.endpoints.prod-elastic-cloud-billing.cloud.goog
+```
+
+After running `crane`, validate using `inspect`:
+
+`docker buildx imagetools inspect <image_name>:<version> --raw | jq '.annotations'`
+
 # Key environment variables
 
 `CLOUDSDK_CONTAINER_CLUSTER`: name of a GCP GKE cluster to run tests on
