@@ -1,0 +1,31 @@
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: "$name"
+  namespace: "$namespace"
+  annotations:
+    marketplace.cloud.google.com/deploy-info: '{"partner_id": "elastic-saas", "product_id": "elastic-agent", "partner_name": "Elastic"}'
+    com.googleapis.cloudmarketplace.product.service.name: 'elastic-agent.endpoints.prod-elastic-cloud-billing.cloud.goog'
+  labels:
+    app.kubernetes.io/name: "$name"
+spec:
+  descriptor:
+    type: ElasticAgent
+    version: $imageTag
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "$name"
+  componentKinds:
+  # The group is determined from the apiVersion: $GROUP_NAME/$VERSION
+  - group: apps/v1
+    kind: DaemonSet
+  - group: ''
+    kind: ClusterRoleBinding
+  - group: ''
+    kind: RoleBinding
+  - group: ''
+    kind: ClusterRole
+  - group: ''
+    kind: Role
+  - group: ''
+    kind: ServiceAccount
